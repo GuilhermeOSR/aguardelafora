@@ -1,0 +1,47 @@
+/* Estilo geral do corpo */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Estilo para o título */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Estilo para o container de botões */
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Estilo para cada botão do menu */
+.menu-button {
+    display: inline-block;
+    padding: 15px 30px;
+    margin: 10px 0;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 5px;
+    text-align: center;
+    width: 200px;
+    transition: background-color 0.3s ease;
+}
+
+/* Efeito ao passar o mouse sobre os botões */
+.menu-button:hover {
+    background-color: #0056b3;
+}

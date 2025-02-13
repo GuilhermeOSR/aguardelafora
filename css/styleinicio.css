@@ -1,0 +1,119 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+header {
+    background: #ffffff;
+    padding: 20px 40px;
+}
+
+header h1 span {
+    visibility: hidden;
+}
+
+header h1 img {
+    border-radius: 50%;
+}
+
+header .container {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+}
+
+
+.btn-h {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.btn-h span {
+    display: block;
+    width: 30px;
+    height: 4px;
+    background: #000;
+    border-radius: 5px;
+}
+
+section {
+    background: #0d141a;
+    min-height: 100vh;
+
+}
+
+
+.content-main .btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 440px;
+    margin: 0 auto;
+
+
+}
+
+.btn-container button {
+    margin-bottom: 40px;
+    padding: 20px;
+    width: 100%;
+    font-size: 24px;
+    border-radius: 100px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s; /* Suaviza a transição */
+}
+
+.main-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+
+/* Botão 2 */
+.btn-container button:nth-child(1) {
+    background-color: #008000; /* Verde */
+    color: white;
+}
+.btn-container button:nth-child(1):hover {
+    background-color: #006400;
+    transform: scale(1.05);
+}
+
+/* Botão 3 */
+.btn-container button:nth-child(2) {
+    background-color: #222; /* Preto */
+    color: white;
+}
+.btn-container button:nth-child(2):hover {
+    background-color: #111;
+    transform: scale(1.05);
+}
+
+/* Botão 4 */
+.btn-container button:nth-child(3) {
+    background-color: #008B8B; /* Azul petróleo */
+    color: white;
+}
+.btn-container button:nth-child(3):hover {
+    background-color: #006F6F;
+    transform: scale(1.05);
+}
+
+/* Botão 5 */
+.btn-container button:nth-child(4) {
+    background-color: #B22222; /* Vermelho */
+    color: white;
+}
+.btn-container button:nth-child(4):hover {
+    background-color: #8B1A1A;
+    transform: scale(1.05);
+}
