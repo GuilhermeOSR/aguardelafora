@@ -1,3 +1,24 @@
+<?php
+require_once '../php/conexao.php';
+
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    die("ID do estabelecimento não fornecido.");
+}
+
+$id = intval($_GET['id']);
+$sql = "SELECT * FROM estabelecimentos WHERE id = ?";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    die("Estabelecimento não encontrado.");
+}
+
+$estabelecimento = $result->fetch_assoc();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,8 +33,8 @@
         <nav class="bg-blue-600 text-white w-64 p-5 hidden md:block">
             <h1 class="text-2xl font-bold mb-5">Admin</h1>
             <ul>
-                <li class="mb-3"><a href="#" class="block p-2 hover:bg-blue-500 rounded">Dashboard</a></li>
-                <li class="mb-3"><a href="#" class="block p-2 bg-blue-500 rounded">Estabelecimentos</a></li>
+                <li class="mb-3"><a href="./" class="block p-2 hover:bg-blue-500 rounded">Dashboard</a></li>
+                <li class="mb-3"><a href="./estabelecimentos.php" class="block p-2 bg-blue-500 rounded">Estabelecimentos</a></li>
                 <li class="mb-3"><a href="#" class="block p-2 hover:bg-blue-500 rounded">Ajudantes</a></li>
                 <li class="mb-3"><a href="#" class="block p-2 hover:bg-blue-500 rounded">Pendências</a></li>
             </ul>
@@ -25,66 +46,49 @@
 
             <!-- Formulário de Edição -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-md">
-                <form action="#" method="POST">
+                <form action="../php/update_estabelecimento.php" method="POST">
+                    <input type="hidden" name="id" value="<?php echo $estabelecimento['id']; ?>">
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- CNPJ -->
                         <div>
                             <label class="block text-sm font-medium">CNPJ</label>
-                            <input type="text" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" placeholder="00.000.000/0000-00">
+                            <input type="text" name="cnpj" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" value="<?php echo htmlspecialchars($estabelecimento['cnpj']); ?>">
                         </div>
                         <!-- Razão Social -->
-                        <div>
-                            <label class="block text-sm font-medium">Razão Social</label>
-                            <input type="text" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" placeholder="Nome da empresa">
-                        </div>
+
                         <!-- Nome Fantasia -->
                         <div>
                             <label class="block text-sm font-medium">Nome Fantasia</label>
-                            <input type="text" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" placeholder="Nome fantasia">
+                            <input type="text" name="nome_fantasia" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" value="<?php echo htmlspecialchars($estabelecimento['nome_fantasia']); ?>">
                         </div>
                         <!-- Endereço -->
                         <div>
                             <label class="block text-sm font-medium">Endereço</label>
-                            <input type="text" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" placeholder="Rua, número, bairro, cidade">
+                            <input type="text" name="endereco" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" value="<?php echo htmlspecialchars($estabelecimento['endereco']); ?>">
                         </div>
                     </div>
 
                     <!-- Dias e Horários de Recebimento -->
                     <div class="mt-4">
                         <label class="block text-sm font-medium">Dias e Horários de Recebimento</label>
-                        <input type="text" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" placeholder="Ex: Segunda a Sexta, 08:00 - 18:00">
+                        <input type="text" name="horarios_recebimento" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" value="<?php echo htmlspecialchars($estabelecimento['horarios_recebimento']); ?>">
                     </div>
 
                     <!-- Agilidade no Recebimento -->
                     <div class="mt-4">
                         <label class="block text-sm font-medium">Agilidade no Recebimento</label>
-                        <select class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600">
-                            <option value="rápido">Rápido</option>
-                            <option value="médio">Médio</option>
-                            <option value="demorado">Demorado</option>
+                        <select name="agilidade_atendimento" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600">
+                            <option value="rápido" <?php echo ($estabelecimento['agilidade_atendimento'] == 'rápido') ? 'selected' : ''; ?>>Rápido</option>
+                            <option value="médio" <?php echo ($estabelecimento['agilidade_atendimento'] == 'médio') ? 'selected' : ''; ?>>Médio</option>
+                            <option value="demorado" <?php echo ($estabelecimento['agilidade_atendimento'] == 'demorado') ? 'selected' : ''; ?>>Demorado</option>
                         </select>
                     </div>
-
-                    <!-- Acessibilidade -->
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium">Acessibilidade</label>
-                        <div class="flex gap-4">
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2"> Escadas
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2"> Elevador
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2"> Rampa
-                            </label>
-                        </div>
-                    </div>
-
+                  
                     <!-- Botões -->
                     <div class="mt-6 flex justify-between">
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-                        <button onclick="window.location.href='./estabelecimentos.html'" type="button" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
+                        <button onclick="window.location.href='./estabelecimentos.php'" type="button" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
                     </div>
                 </form>
             </div>
