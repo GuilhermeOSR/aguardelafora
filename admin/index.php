@@ -56,6 +56,41 @@ $sql_pendentes = "SELECT COUNT(*) AS total FROM estabelecimentos_pendentes";
 $result_pendentes = $mysqli->query($sql_pendentes);
 $pendentes_count = $result_pendentes->fetch_assoc()['total'] ?? 0;
 
+//Pendencias Recentes
+
+
+$sql_pendentes_recentes = "SELECT id, nome_fantasia, data_cadastro FROM estabelecimentos_pendentes ORDER BY data_cadastro DESC LIMIT 5";
+$result_pendentes_recentes = $mysqli->query($sql_pendentes_recentes);
+
+$pendentes_recentes = [];
+while ($row = $result_pendentes_recentes->fetch_assoc()) {
+    $pendentes_recentes[] = $row;
+}
+
+// Aprovar ou Rejeitar estabelecimento
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['aprovar'])) {
+        $id_estabelecimento = $_POST['id_estabelecimento'];
+
+        // Aprovar: Move da tabela pendentes para estabelecimentos
+        $sqlAprovar = "INSERT INTO estabelecimentos (cnpj, nome_fantasia, endereco, horarios_recebimento, agilidade_atendimento, condicoes_local, mapa) 
+                       SELECT cnpj, nome_fantasia, endereco, horarios_recebimento, agilidade_atendimento, condicoes_local, mapa 
+                       FROM estabelecimentos_pendentes WHERE id = $id_estabelecimento";
+        $sqlExcluir = "DELETE FROM estabelecimentos_pendentes WHERE id = $id_estabelecimento";
+
+        mysqli_query($mysqli, $sqlAprovar);
+        mysqli_query($mysqli, $sqlExcluir);
+    }
+
+    if (isset($_POST['rejeitar'])) {
+        $id_estabelecimento = $_POST['id_estabelecimento'];
+        // Rejeitar: Remove da tabela pendentes
+        $sqlExcluir = "DELETE FROM estabelecimentos_pendentes WHERE id = $id_estabelecimento";
+        mysqli_query($mysqli, $sqlExcluir);
+    }
+}
+
+mysqli_close($mysqli);
 
 ?>
 
@@ -110,6 +145,30 @@ $pendentes_count = $result_pendentes->fetch_assoc()['total'] ?? 0;
                     <p>Pendências</p>
                 </div>
             </div>
+
+            <!-- Estabelecimentos Pendentes Recentes -->
+<div class="bg-white p-5 rounded shadow-md mb-6">
+                <h3 class="text-lg font-semibold mb-3">Estabelecimentos Pendentes Recentes</h3>
+                <ul class="space-y-3">
+                    <?php foreach ($pendentes_recentes as $pendente): ?>
+                        <li class="flex justify-between items-center">
+                            <span><?php echo $pendente['nome_fantasia']; ?></span>
+                            <span class="text-sm text-gray-500"></span>
+                            <div class="ml-4">
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
+                                    <button type="submit" name="aprovar" class="bg-green-500 text-white px-4 py-2 rounded">Aprovar</button>
+                                </form>
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
+                                    <button type="submit" name="rejeitar" class="bg-red-500 text-white px-4 py-2 rounded ml-2">Rejeitar</button>
+                                </form>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <a href="configuracoes.php" class="block text-center text-blue-600 mt-4 hover:underline">Ver mais</a>
+            </div>
             
             <!-- Gráficos -->
             <div class="grid grid-cols-1 md:grid-cols-4">
@@ -118,9 +177,11 @@ $pendentes_count = $result_pendentes->fetch_assoc()['total'] ?? 0;
                     <canvas id="chartCombinado"></canvas>
                 </div>
             </div>
+
         </div>
     </div>
-    
+
+
     <script>
 // Função para animar o contador
 function animateCounter(id, currentValue, targetValue) {

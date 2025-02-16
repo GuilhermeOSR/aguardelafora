@@ -28,6 +28,7 @@ $estabelecimentos = [];
 
 while ($row = $result->fetch_assoc()) {
     $estabelecimentos[] = [
+        'id' => $row['id'],  // ADICIONE ESTA LINHA
         'nome_fantasia' => $row['nome_fantasia'],
         'cnpj' => $row['cnpj'],
         'endereco' => $row['endereco'],
