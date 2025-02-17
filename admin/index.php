@@ -59,7 +59,7 @@ $pendentes_count = $result_pendentes->fetch_assoc()['total'] ?? 0;
 //Pendencias Recentes
 
 
-$sql_pendentes_recentes = "SELECT id, nome_fantasia, data_cadastro FROM estabelecimentos_pendentes ORDER BY data_cadastro DESC LIMIT 5";
+$sql_pendentes_recentes = "SELECT id, nome_fantasia, data_cadastro FROM estabelecimentos_pendentes ORDER BY data_cadastro DESC LIMIT 2";
 $result_pendentes_recentes = $mysqli->query($sql_pendentes_recentes);
 
 $pendentes_recentes = [];
@@ -148,25 +148,24 @@ mysqli_close($mysqli);
 
             <!-- Estabelecimentos Pendentes Recentes -->
 <div class="bg-white p-5 rounded shadow-md mb-6">
-                <h3 class="text-lg font-semibold mb-3">Estabelecimentos Pendentes Recentes</h3>
-                <ul class="space-y-3">
-                    <?php foreach ($pendentes_recentes as $pendente): ?>
-                        <li class="flex justify-between items-center">
-                            <span><?php echo $pendente['nome_fantasia']; ?></span>
-                            <span class="text-sm text-gray-500"></span>
-                            <div class="ml-4">
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
-                                    <button type="submit" name="aprovar" class="bg-green-500 text-white px-4 py-2 rounded">Aprovar</button>
-                                </form>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
-                                    <button type="submit" name="rejeitar" class="bg-red-500 text-white px-4 py-2 rounded ml-2">Rejeitar</button>
-                                </form>
-                            </div>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+                <h3 class="text-lg font-semibold mb-3">Estabelecimentos Pendentes </h3>
+                <ul id="listaPendentes" class="space-y-3">
+    <?php foreach ($pendentes_recentes as $pendente): ?>
+        <li class="flex justify-between items-center">
+            <span><?php echo $pendente['nome_fantasia']; ?></span>
+            <div class="ml-4">
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
+                    <button type="submit" name="aprovar" class="bg-green-500 text-white px-2 py-1 rounded">Aprovar</button>
+                </form>
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="id_estabelecimento" value="<?php echo $pendente['id']; ?>">
+                    <button type="submit" name="rejeitar" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Rejeitar</button>
+                </form>
+            </div>
+        </li>
+    <?php endforeach; ?>
+</ul>
                 <a href="configuracoes.php" class="block text-center text-blue-600 mt-4 hover:underline">Ver mais</a>
             </div>
             
@@ -183,47 +182,15 @@ mysqli_close($mysqli);
 
 
     <script>
-// Função para animar o contador
-function animateCounter(id, currentValue, targetValue) {
-
-
-    // Não iniciar a animação se os valores forem iguais ou ambos zero
-    if (currentValue === targetValue || targetValue === 0) return;
-
-    const increment = (targetValue + currentValue) / 50;
-    const element = document.getElementById(id);
-
-    const interval = setInterval(function() {
-        currentValue += increment;
-        
-        if ((increment > 0 && currentValue >= targetValue) || (increment < 0 && currentValue <= targetValue)) {
-            clearInterval(interval);
-            element.innerText = targetValue;
-        } else {
-            element.innerText = Math.floor(currentValue);
-        }
-    }, 5);
-}
-
-// Definir os valores para os estabelecimentos e pendências
-const estabelecimentosCount = <?php echo $estabelecimentos_count; ?>;
-const pendenciasCount = <?php echo $pendentes_count; ?>;
-
-// Iniciar as animações
-animateCounter('estabelecimentosCount', 0, estabelecimentosCount);
-animateCounter('pendenciasCount', 0, pendenciasCount);
 
 async function atualizarDados() {
     try {
         const response = await fetch('../php/ajax_atualizar.php');
         const data = await response.json();
 
-        if (data.estabelecimentos_count !== estabelecimentosCount) {
-            animateCounter('estabelecimentosCount', estabelecimentosCount, data.estabelecimentos_count);
-        }
-        if (data.pendentes_count !== pendenciasCount) {
-            animateCounter('pendenciasCount', pendenciasCount, data.pendentes_count);
-        }
+        // Atualiza os contadores
+        document.getElementById('estabelecimentosCount').innerText = data.estabelecimentos_count;
+        document.getElementById('pendenciasCount').innerText = data.pendentes_count;
 
         // Atualiza o contador de pendências no menu
         const notificationBadge = document.getElementById('notification');
@@ -236,18 +203,37 @@ async function atualizarDados() {
             }
         }
 
-        // Atualiza os dados do gráfico
-        chartCombinado.data.labels = data.labels;
-        chartCombinado.data.datasets[0].data = data.data;
-        chartCombinado.data.datasets[1].data = data.data_pendencias;
-        chartCombinado.update();
+        // Atualiza a lista de pendentes
+        const listaPendentes = document.getElementById('listaPendentes');
+        if (listaPendentes) {
+            listaPendentes.innerHTML = ""; // Limpa a lista
+            data.pendentes_recentes.forEach(pendente => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center";
+                li.innerHTML = `
+                    <span>${pendente.nome_fantasia}</span>
+                    <div class="ml-4">
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="id_estabelecimento" value="${pendente.id}">
+                            <button type="submit" name="aprovar" class="bg-green-500 text-white px-2 py-1 rounded">Aprovar</button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="id_estabelecimento" value="${pendente.id}">
+                            <button type="submit" name="rejeitar" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Rejeitar</button>
+                        </form>
+                    </div>
+                `;
+                listaPendentes.appendChild(li);
+            });
+        }
+
     } catch (error) {
         console.error('Erro ao atualizar os dados:', error);
     }
 }
 
-// Atualizar a cada 5 segundos
-setInterval(atualizarDados, 500);
+// Atualiza os dados a cada 10 segundos
+setInterval(atualizarDados, 300);
 
 // Dados para o gráfico
 const labelsEstabelecimentos = <?php echo $labels_json; ?>;

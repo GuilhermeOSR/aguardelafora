@@ -1,3 +1,33 @@
+<?php
+include './php/conexao.php';  // Conexão com o banco de dados
+
+// Buscar estabelecimento pelo ID
+if (isset($_GET['id'])) {
+    $id_estabelecimento = $_GET['id'];
+    $sql = "SELECT * FROM estabelecimentos WHERE id = $id_estabelecimento";
+    $result = mysqli_query($mysqli, $sql);
+
+    if ($result) {
+        $estabelecimento = mysqli_fetch_assoc($result);
+    } else {
+        die("Estabelecimento não encontrado.");
+    }
+} else {
+    die("ID não fornecido.");
+}
+
+mysqli_close($mysqli);
+
+// URL do mapa estático usando a coluna 'mapa' diretamente
+$google_maps_url = $estabelecimento['mapa'];  // Assume-se que o valor da coluna 'mapa' já é um link válido para o Google Maps
+
+if (strpos($google_maps_url, 'embed?pb=') === false) {
+    // Caso não seja um link de incorporação do Google Maps, tenta construir a URL para o mapa
+    // Aqui assumimos que o valor da coluna 'mapa' contém coordenadas como 'latitude,longitude'
+    $google_maps_url = 'https://www.google.com/maps/embed/v1/place?key=AIzaSyDA9zdFMI_vSBSFp1U4Afc3D8Loib2-wQI&q=' . urlencode($google_maps_url);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -17,7 +47,12 @@
         <!-- Card do Estabelecimento -->
         <div class="bg-white p-6 rounded-xl shadow-md" id="card-estabelecimento">
             <h1 class="text-2xl font-bold" id="nome-estabelecimento">Carregando...</h1>
-            <p class="text-yellow-500 text-sm mt-1" id="avaliacao-estabelecimento">Carregando avaliação...</p>
+            <a href="#card-avaliacoes" class="">
+                <p class="text-yellow-500 text-sm mt-1" id="avaliacao-estabelecimento">Carregando avaliação...
+                </p>
+            </a>
+            
+            
         </div>
 
         <!-- Horários de Recebimento -->
@@ -29,11 +64,20 @@
         </div>
 
         <!-- Mapa de Localização -->
+        <!-- Mapa de Localização -->
         <div class="bg-white p-4 rounded-xl shadow-md mt-4" id="card-localizacao">
             <h2 class="text-lg font-semibold">Localização</h2>
             <div id="localizacao" class="mt-2">
-                <!-- O mapa será exibido aqui -->
-        
+                <!-- Mapa do Google (Incorporado com iframe) -->
+                <div class="mt-5">
+                    <iframe
+                        src="<?= $google_maps_url ?>" 
+                        class="w-full h-64 sm:h-80 lg:h-96"  <!-- Responsividade do mapa -->
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
             </div>
         </div>
 

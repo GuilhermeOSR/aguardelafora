@@ -84,6 +84,11 @@ $estabelecimento = $result->fetch_assoc();
                             <option value="demorado" <?php echo ($estabelecimento['agilidade_atendimento'] == 'demorado') ? 'selected' : ''; ?>>Demorado</option>
                         </select>
                     </div>
+
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium">Link do Mapa (Google Maps)</label>
+                        <input type="text" name="mapa" class="w-full p-2 border rounded mt-1 dark:bg-gray-700 dark:border-gray-600" value="<?php echo htmlspecialchars($estabelecimento['mapa']); ?>" placeholder="Link do mapa">
+                    </div>
                   
                     <!-- Botões -->
                     <div class="mt-6 flex justify-between">

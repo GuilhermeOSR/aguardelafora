@@ -75,23 +75,32 @@ mysqli_close($mysqli);
                 <h3 class="text-xl font-bold mb-3">Aprovar Estabelecimentos</h3>
                 <div class="bg-white dark:bg-gray-800 p-5 rounded shadow-md">
                     <!-- Exibindo a lista de estabelecimentos pendentes -->
-                    <ul id="pendingEstablishments">
-                        <?php foreach ($pendentes as $estabelecimento): ?>
-                            <li class="flex justify-between p-3 border-b dark:border-gray-700">
-                                <span><?= $estabelecimento['nome_fantasia']; ?></span>
-                                <div>
-                                    <form method="POST" style="display:inline;">
-                                        <input type="hidden" name="id_estabelecimento" value="<?= $estabelecimento['id']; ?>">
-                                        <button type="submit" name="aprovar" class="bg-green-500 text-white px-4 py-2 rounded">Aprovar</button>
-                                    </form>
-                                    <form method="POST" style="display:inline;">
-                                        <input type="hidden" name="id_estabelecimento" value="<?= $estabelecimento['id']; ?>">
-                                        <button type="submit" name="rejeitar" class="bg-red-500 text-white px-4 py-2 rounded ml-2">Rejeitar</button>
-                                    </form>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+<!-- Exibindo a lista de estabelecimentos pendentes -->
+<ul id="pendingEstablishments">
+    <?php foreach ($pendentes as $estabelecimento): ?>
+        <li class="flex flex-col sm:flex-row items-center sm:items-start p-3 border-b dark:border-gray-700">
+            <!-- Nome do Estabelecimento -->
+            <span class="text-center sm:text-left w-full mb-3 sm:mb-0"><?= $estabelecimento['nome_fantasia']; ?></span>
+
+            <!-- Botões -->
+            <div class="flex flex-col sm:flex-row sm:space-x-4 w-full sm:w-auto">
+            <form method="POST" class="w-full sm:w-auto mb-2 sm:mb-0">
+    <input type="hidden" name="id_estabelecimento" value="<?= $estabelecimento['id']; ?>">
+    <button type="submit" name="aprovar" class="bg-green-500 text-white px-4 py-2 rounded w-full sm:w-auto">Aprovar</button>
+</form>
+<form method="POST" class="w-full sm:w-auto mb-2 sm:mb-0">
+    <input type="hidden" name="id_estabelecimento" value="<?= $estabelecimento['id']; ?>">
+    <button type="submit" name="rejeitar" class="bg-red-500 text-white px-4 py-2 rounded w-full sm:w-auto">Rejeitar</button>
+</form>
+
+<!-- Link para página de detalhes, estilizado como um botão -->
+<a href="detalhes_estabelecimento.php?id=<?= $estabelecimento['id']; ?>" class="bg-blue-500 text-white px-4 py-2 rounded w-full sm:w-auto mt-2 sm:mt-0 text-center inline-block">
+    Detalhes
+</a>
+            </div>
+        </li>
+    <?php endforeach; ?>
+</ul>
                 </div>
             </div>
         </div>

@@ -42,12 +42,22 @@ $sql_pendentes = "SELECT COUNT(*) AS total FROM estabelecimentos_pendentes";
 $result_pendentes = $mysqli->query($sql_pendentes);
 $pendentes_count = $result_pendentes->fetch_assoc()['total'] ?? 0;
 
+// Consultar estabelecimentos pendentes recentes
+$sql_pendentes_recentes = "SELECT id, nome_fantasia, data_cadastro FROM estabelecimentos_pendentes ORDER BY data_cadastro DESC LIMIT 2";
+$result_pendentes_recentes = $mysqli->query($sql_pendentes_recentes);
+
+$pendentes_recentes = [];
+while ($row = $result_pendentes_recentes->fetch_assoc()) {
+    $pendentes_recentes[] = $row;
+}
+
 echo json_encode([
     'labels' => $labels,
     'data' => $data,
     'labels_pendencias' => $labels_pendencias,
     'data_pendencias' => $data_pendencias,
     'estabelecimentos_count' => $estabelecimentos_count,
-    'pendentes_count' => $pendentes_count
+    'pendentes_count' => $pendentes_count,
+    'pendentes_recentes' => $pendentes_recentes
 ]);
 ?>
