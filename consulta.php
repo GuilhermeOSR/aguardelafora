@@ -79,12 +79,8 @@
                 });
         }
 
-        // Detecta o scroll e carrega mais estabelecimentos
-        window.addEventListener('scroll', () => {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                carregarEstabelecimentos();
-            }
-        });
+
+        
     </script>
 </head>
 <body class="bg-gray-100 p-6">
@@ -96,7 +92,19 @@
                class="w-full p-3 border border-gray-300 rounded-md shadow-sm mb-4 focus:ring focus:ring-blue-400"
                oninput="carregarEstabelecimentos(true)" />
 
-        <div id="estabelecimentos" class="grid gap-4"></div>
+        <!-- Container com scroll -->
+        <div class="overflow-auto h-96">
+            <div id="estabelecimentos" class="grid gap-4"></div>
+        </div>
+
+        <!-- Botão "Ver mais" -->
+        <div class="text-center mt-6">
+            <button id="btn-ver-mais" onclick="carregarMais()" 
+                    class="bg-blue-500 text-white py-2 px-6 rounded-full hover:bg-blue-700 transition-all" 
+                    style="display: none;">
+                Ver mais
+            </button>
+        </div>
     </div>
 </body>
 </html>

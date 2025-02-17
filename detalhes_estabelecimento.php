@@ -19,11 +19,9 @@ if (isset($_GET['id'])) {
 mysqli_close($mysqli);
 
 // URL do mapa estático usando a coluna 'mapa' diretamente
-$google_maps_url = $estabelecimento['mapa'];  // Assume-se que o valor da coluna 'mapa' já é um link válido para o Google Maps
+$google_maps_url = $estabelecimento['mapa'];
 
 if (strpos($google_maps_url, 'embed?pb=') === false) {
-    // Caso não seja um link de incorporação do Google Maps, tenta construir a URL para o mapa
-    // Aqui assumimos que o valor da coluna 'mapa' contém coordenadas como 'latitude,longitude'
     $google_maps_url = 'https://www.google.com/maps/embed/v1/place?key=AIzaSyDA9zdFMI_vSBSFp1U4Afc3D8Loib2-wQI&q=' . urlencode($google_maps_url);
 }
 ?>
@@ -46,13 +44,19 @@ if (strpos($google_maps_url, 'embed?pb=') === false) {
 
         <!-- Card do Estabelecimento -->
         <div class="bg-white p-6 rounded-xl shadow-md" id="card-estabelecimento">
-            <h1 class="text-2xl font-bold" id="nome-estabelecimento">Carregando...</h1>
-            <a href="#card-avaliacoes" class="">
-                <p class="text-yellow-500 text-sm mt-1" id="avaliacao-estabelecimento">Carregando avaliação...
-                </p>
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold" id="nome-estabelecimento">Carregando...</h1>
+
+                <!-- Botão Editar -->
+                <a href="./editar_estabelecimento.php?id=<?= $id_estabelecimento ?>" 
+                   class="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-lg text-sm">
+                   ✏️ Editar
+                </a>
+            </div>
+
+            <a href="#card-avaliacoes">
+                <p class="text-yellow-500 text-sm mt-1" id="avaliacao-estabelecimento">Carregando avaliação...</p>
             </a>
-            
-            
         </div>
 
         <!-- Horários de Recebimento -->
@@ -64,15 +68,12 @@ if (strpos($google_maps_url, 'embed?pb=') === false) {
         </div>
 
         <!-- Mapa de Localização -->
-        <!-- Mapa de Localização -->
         <div class="bg-white p-4 rounded-xl shadow-md mt-4" id="card-localizacao">
             <h2 class="text-lg font-semibold">Localização</h2>
             <div id="localizacao" class="mt-2">
-                <!-- Mapa do Google (Incorporado com iframe) -->
                 <div class="mt-5">
-                    <iframe
-                        src="<?= $google_maps_url ?>" 
-                        class="w-full h-64 sm:h-80 lg:h-96"  <!-- Responsividade do mapa -->
+                    <iframe src="<?= $google_maps_url ?>" 
+                        class="w-full h-64 sm:h-80 lg:h-96"
                         style="border:0;" 
                         allowfullscreen="" 
                         loading="lazy">
@@ -81,104 +82,204 @@ if (strpos($google_maps_url, 'embed?pb=') === false) {
             </div>
         </div>
 
-        <!-- Avaliações -->
-        <div class="bg-white p-4 rounded-xl shadow-md mt-4" id="card-avaliacoes">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold">Avaliações</h2>
-                <div id="media-avaliacoes" class="flex items-center">
-                    <span id="media-texto" class="text-yellow-500 font-semibold">Carregando...</span>
-                    <div id="media-estrelas" class="flex ml-2">
-                        <!-- As estrelas serão carregadas aqui -->
-                    </div>
+        <!-- Formulário de Cadastro de Avaliação Compacto -->
+        <div class="bg-white p-4 rounded-xl shadow-md mt-4" id="card-cadastro-avaliacao">
+            <h2 class="text-lg font-semibold mb-4">Deixe sua Avaliação</h2>
+            <form action="./php/processa_avaliacao.php" method="post">
+                <!-- Campo oculto com o id do estabelecimento -->
+                <input type="hidden" name="id_estabelecimento" value="<?= $id_estabelecimento ?>">
+                <!-- Campo oculto para armazenar a nota selecionada -->
+                <input type="hidden" name="nota" id="nota" value="0">
+                
+                <!-- Campo para Comentário -->
+                <div class="mb-4">
+                    <textarea name="comentario" id="comentario" rows="3" class="w-full p-2 border rounded" placeholder="Escreva seu comentário aqui"></textarea>
                 </div>
-            </div>
-            <div id="avaliacoes" class="space-y-4 mt-4">
-                <!-- Avaliações serão carregadas aqui -->
-            </div>
+                
+                <!-- Estrelas Interativas para Seleção de Nota -->
+                <div class="flex items-center mb-4">
+                    <span class="star cursor-pointer text-gray-300 text-2xl" data-value="1">★</span>
+                    <span class="star cursor-pointer text-gray-300 text-2xl" data-value="2">★</span>
+                    <span class="star cursor-pointer text-gray-300 text-2xl" data-value="3">★</span>
+                    <span class="star cursor-pointer text-gray-300 text-2xl" data-value="4">★</span>
+                    <span class="star cursor-pointer text-gray-300 text-2xl" data-value="5">★</span>
+                </div>
+                
+                <!-- Botão de Envio -->
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Enviar Avaliação
+                </button>
+            </form>
         </div>
+
+
+
+        <!-- Avaliações -->
+<!-- Avaliações -->
+<div class="bg-white p-4 rounded-xl shadow-md mt-4" id="card-avaliacoes">
+  <div class="flex justify-between items-center">
+    <h2 class="text-lg font-semibold">Avaliações</h2>
+    <div id="media-avaliacoes" class="flex items-center">
+      <span id="media-texto" class="text-yellow-500 font-semibold">Carregando...</span>
+      <div id="media-estrelas" class="flex ml-2"></div>
     </div>
+  </div>
+  <!-- Container das avaliações com altura fixa e scroll interno -->
+  <div id="avaliacoes-container" class="mt-4">
+    <div id="avaliacoes" class="space-y-4 max-h-96 overflow-y-auto"></div>
+    <div id="verMaisContainer" class="mt-4"></div>
+  </div>
+</div>
 
-    <script>
+        <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const estabelecimentoId = urlParams.get('id');
 
-        // Extraindo latitude e longitude do link do Google Maps
-        function getCoordinatesFromMapLink(mapLink) {
-            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
-            const match = mapLink.match(regex);
-            if (match) {
-                return {
-                    lat: parseFloat(match[1]),
-                    lng: parseFloat(match[2])
-                };
-            }
-            return null; // Retorna null se não encontrar coordenadas
+  // Variáveis para controle da paginação das avaliações
+  let allReviews = [];      // Aqui armazenaremos todas as avaliações recebidas do backend
+  let currentOffset = 0;    // Índice atual
+  const limit = 5;          // Quantidade de avaliações a exibir por vez
+
+  const reviewsContainer = document.getElementById('avaliacoes');
+
+  if (estabelecimentoId) {
+    fetch(`./php/view_estabelecimentos.php?id=${estabelecimentoId}`)
+      .then(response => response.json())
+      .then(data => {
+        const estabelecimento = data.estabelecimento;
+        allReviews = data.avaliacoes; // Armazena todas as avaliações
+
+        document.getElementById('nome-estabelecimento').innerText = estabelecimento.nome_fantasia;
+        document.getElementById('avaliacao-estabelecimento').textContent = `⭐ ${estabelecimento.media_avaliacoes}`;
+
+        const mediaAvaliacoes = estabelecimento.media_avaliacoes;
+        const mediaTexto = document.getElementById('media-texto');
+        const mediaEstrelas = document.getElementById('media-estrelas');
+
+        mediaTexto.textContent = `${mediaAvaliacoes}`;
+        mediaEstrelas.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+          const estrela = document.createElement('span');
+          estrela.classList.add('text-xl');
+          estrela.textContent = '★';
+          if (i <= Math.round(mediaAvaliacoes)) {
+            estrela.classList.add('text-yellow-500');
+          } else {
+            estrela.classList.add('text-gray-300');
+          }
+          mediaEstrelas.appendChild(estrela);
         }
 
-        // Obter o ID do estabelecimento da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const estabelecimentoId = urlParams.get('id');
+        const horariosElement = document.getElementById('horarios');
+        horariosElement.innerHTML = '';
+        estabelecimento.horarios.forEach(horario => {
+          const li = document.createElement('li');
+          li.textContent = horario;
+          horariosElement.appendChild(li);
+        });
 
-        if (estabelecimentoId) {
-            // Fazer a requisição AJAX para o backend
-            fetch(`./php/view_estabelecimentos.php?id=${estabelecimentoId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const estabelecimento = data.estabelecimento;
-                    const avaliacoes = data.avaliacoes;
+        // Inicia a exibição das avaliações paginadas
+        reviewsContainer.innerHTML = '';
+        currentOffset = 0;
+        renderNextReviews();
+      })
+      .catch(error => {
+        console.error('Erro ao carregar os dados do estabelecimento:', error);
+      });
+  }
 
-                    // Preencher os dados do estabelecimento
-                    document.getElementById('nome-estabelecimento').innerText = estabelecimento.nome_fantasia;
-                    document.getElementById('avaliacao-estabelecimento').textContent = `⭐ ${estabelecimento.media_avaliacoes}`;
+  // Função que renderiza o próximo conjunto de avaliações
+  function renderNextReviews() {
+    const chunk = allReviews.slice(currentOffset, currentOffset + limit);
+    chunk.forEach(avaliacao => {
+      // Converte a data para um objeto Date e formata somente a data (ex: "17/02/2025")
+      const dataAvaliacao = new Date(avaliacao.data);
+      const dataFormatada = dataAvaliacao.toLocaleDateString('pt-BR');
 
+      const div = document.createElement('div');
+      div.classList.add('border-b', 'pb-4');
+      div.innerHTML = `
+          <div class="flex justify-between items-center">
+              <strong>${avaliacao.usuario_nome || 'Usuário Anônimo'}</strong>
+              <small class="text-gray-500 text-sm">${dataFormatada}</small>
+          </div>
+          <div class="mt-2">
+              <span class="text-yellow-500">⭐ ${avaliacao.nota}</span>
+              <p class="mt-2">${avaliacao.comentario}</p>
+          </div>
+      `;
+      reviewsContainer.appendChild(div);
+    });
 
-                    // Exibir a média de avaliações com estrelas
-                    const mediaAvaliacoes = estabelecimento.media_avaliacoes;
-                    const mediaTexto = document.getElementById('media-texto');
-                    const mediaEstrelas = document.getElementById('media-estrelas');
+    currentOffset += limit;
+    // Se ainda houver avaliações, renderiza (ou re-renderiza) o botão "Ver mais"
+    if (currentOffset < allReviews.length) {
+      renderVerMaisButton();
+    } else {
+      removeVerMaisButton();
+    }
+  }
 
-                    // Atualizar texto
-                    mediaTexto.textContent = `${mediaAvaliacoes}`;
+  // Cria ou exibe o botão "Ver mais"
+  function renderVerMaisButton() {
+    let verMaisButton = document.getElementById('verMaisButton');
+    if (!verMaisButton) {
+      verMaisButton = document.createElement('button');
+      verMaisButton.id = 'verMaisButton';
+      verMaisButton.className = 'w-full bg-gray-200 text-blue-500 p-2 rounded mt-4';
+      verMaisButton.textContent = 'Ver mais';
+      verMaisButton.addEventListener('click', function() {
+        verMaisButton.remove();
+        renderNextReviews();
+        // Opcional: rolar suavemente para o novo conteúdo
+        verMaisButton.scrollIntoView({ behavior: 'smooth' });
+      });
+      // Adiciona o botão logo após o container de avaliações
+      reviewsContainer.parentElement.appendChild(verMaisButton);
+    }
+  }
 
-                    // Adicionar as estrelas
-                    mediaEstrelas.innerHTML = ''; // Limpar antes de adicionar
-                    for (let i = 1; i <= 5; i++) {
-                        const estrela = document.createElement('span');
-                        estrela.classList.add('text-xl');
-                        if (i <= Math.round(mediaAvaliacoes)) {
-                            estrela.classList.add('text-yellow-500'); // Estrela cheia
-                            estrela.textContent = '★';
-                        } else {
-                            estrela.classList.add('text-gray-300'); // Estrela vazia
-                            estrela.textContent = '★';
-                        }
-                        mediaEstrelas.appendChild(estrela);
-                    }
+  // Remove o botão "Ver mais" se não houver mais avaliações
+  function removeVerMaisButton() {
+    const verMaisButton = document.getElementById('verMaisButton');
+    if (verMaisButton) {
+      verMaisButton.remove();
+    }
+  }
 
-                    // Exibir horários
-                    const horariosElement = document.getElementById('horarios');
-                    horariosElement.innerHTML = ''; // Limpar antes de adicionar
-                    estabelecimento.horarios.forEach(horario => {
-                        const li = document.createElement('li');
-                        li.textContent = horario;
-                        horariosElement.appendChild(li);
-                    });
+  // Lógica das estrelas interativas (já existente)
+  const stars = document.querySelectorAll('.star');
+  let rating = 0;
+  
+  stars.forEach(star => {
+    star.addEventListener('mouseover', function() {
+      const value = parseInt(this.getAttribute('data-value'));
+      highlightStars(value);
+    });
+    star.addEventListener('mouseout', function() {
+      highlightStars(rating);
+    });
+    star.addEventListener('click', function() {
+      rating = parseInt(this.getAttribute('data-value'));
+      document.getElementById('nota').value = rating;
+      highlightStars(rating);
+    });
+  });
+  
+  function highlightStars(ratingValue) {
+    stars.forEach(star => {
+      const starValue = parseInt(star.getAttribute('data-value'));
+      if (starValue <= ratingValue) {
+        star.classList.remove('text-gray-300');
+        star.classList.add('text-yellow-500');
+      } else {
+        star.classList.remove('text-yellow-500');
+        star.classList.add('text-gray-300');
+      }
+    });
+  }
+</script>
 
-                    // Exibir avaliações
-                    const avaliacoesElement = document.getElementById('avaliacoes');
-                    avaliacoesElement.innerHTML = ''; // Limpar antes de adicionar
-                    avaliacoes.forEach(avaliacao => {
-                        const div = document.createElement('div');
-                        div.classList.add('border-b', 'pb-4');
-                        div.innerHTML = `<strong>${avaliacao.usuario_nome || 'Usuário Anônimo'}</strong> <span class="text-yellow-500">⭐ ${avaliacao.nota}</span><p class="mt-2">${avaliacao.comentario}</p>`;
-                        avaliacoesElement.appendChild(div);
-                    });
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar os dados do estabelecimento:', error);
-                });
-        }
-
-
-    </script>
-
+    </div>
 </body>
 </html>

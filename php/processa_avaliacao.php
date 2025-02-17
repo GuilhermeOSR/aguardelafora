@@ -17,7 +17,7 @@ $stmt->bind_param("isis", $id_estabelecimento, $comentario, $nota, $data);
 
 if ($stmt->execute()) {
     // Redirecionar para a página de consulta após o envio da avaliação
-    header("Location: ../consulta.php");
+    header("Location: ../detalhes_estabelecimento.php?id=" . $id_estabelecimento);
     exit();  // Certificar-se de que o script pare após o redirecionamento
 } else {
     // Em caso de erro, exibe a mensagem de erro

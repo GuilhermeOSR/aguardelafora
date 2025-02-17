@@ -48,6 +48,15 @@ try {
         $media_avaliacoes = round($soma_avaliacoes / $total_avaliacoes, 1);
     }
 
+            // Exemplo: Buscando avaliações do estabelecimento com ordenação pela data (mais recentes primeiro)
+        $sqlAvaliacoes = "SELECT * FROM avaliacoes WHERE id_estabelecimento = $id_estabelecimento ORDER BY data DESC";
+        $resultAvaliacoes = mysqli_query($mysqli, $sqlAvaliacoes);
+
+        $avaliacoes = [];
+        while ($row = mysqli_fetch_assoc($resultAvaliacoes)) {
+            $avaliacoes[] = $row;
+        }
+
     // Se o campo de horários de recebimento for um texto, converta para array
     $horarios_recebimento = isset($estabelecimento['horarios_recebimento']) ? explode(',', $estabelecimento['horarios_recebimento']) : [];
 
